@@ -9,7 +9,7 @@ const db = require("./models/");
 const app = express();
 
 mongoose.connect(
-    process.env.MONGODB_URI || "mongodb://localhost/workoutdb",
+    process.env.MONGODB_URI || "mongodb://localhost/deep-thoughts",
     {
   useNewUrlParser: true,
   useUnifiedTopology: true,
