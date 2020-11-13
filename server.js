@@ -25,7 +25,7 @@ app.use(express.static("public"));
 app.put("/api/workouts/:id", (req, res) => {
     console.log(req.params.id)
     var body = req.body;
-    db.findByIdAndUpdate(
+    db.Workout.findByIdAndUpdate(
         {
             _id: req.params.id
         },
@@ -49,7 +49,7 @@ app.put("/api/workouts/:id", (req, res) => {
 });
 
 app.post("/api/workouts", ({ body }, res) => {
-    db.create({
+    db.Workout.create({
         exercises: {
             type: body.type,
             name: body.name,
@@ -66,7 +66,7 @@ app.post("/api/workouts", ({ body }, res) => {
 });
 
 app.get("/api/workouts", (req, res) => {
-    db.find({}, (err, data) => {
+    db.Workout.find({}, (err, data) => {
         if (err) {
             console.log(err);
         }
@@ -77,7 +77,7 @@ app.get("/api/workouts", (req, res) => {
 });
 
 app.get("/api/workouts/range", (req, res) => {
-    db.find({}, (err, data) => {
+    db.Workout.find({}, (err, data) => {
         if (err) {
             console.log(err);
         }
