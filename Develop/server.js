@@ -1,24 +1,101 @@
 const express = require("express");
 const logger = require("morgan");
+const mongojs = require("mongojs");
 const mongoose = require("mongoose");
+const path = require("path");
 const PORT = process.env.PORT || 3000;
-
-let db = require("./models/");
-const { Workout } = require("./models/");
+const db = require("./models/");
 
 const app = express();
 
-app.use(logger("dev"));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static("public"));
-
-mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost/workoutdb", {
+mongoose.connect(
+    process.env.MONGODB_URI || "mongodb://localhost/workoutdb",
+    {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
   useFindAndModify: false
 });
+app.use(logger("dev"));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static("public"));
 
-app.use(require("./routes/api.js"));
-app.use(require("./routes/html.js"));
+//API routes
+app.put("/api/workouts/:id", (req, res) => {
+    console.log(req.params.id)
+    var body = req.body;
+    db.findByIdAndUpdate(
+        {
+            _id: req.params.id
+        },
+        {
+            $set: {
+                exercises: [{
+                    type: body.type,
+                    name: body.name,
+                    distance: body.distance,
+                    weight: body.weight,
+                    sets: body.sets,
+                    reps: body.reps,
+                    duration: body.duration
+                }]
+            }
+        }
+    ).then(data => {
+        console.log(data);
+        res.json(data);
+    });
+});
+
+app.post("/api/workouts", ({ body }, res) => {
+    db.create({
+        exercises: {
+            type: body.type,
+            name: body.name,
+            totalDuration: body.totalDuration,
+            weight: body.weight,
+            reps: body.reps,
+            sets: body.sets,
+            distance: body.distance
+        }
+    })
+        .then(dbWorkout => {
+            res.json(dbWorkout);
+        })
+});
+
+app.get("/api/workouts", (req, res) => {
+    db.find({}, (err, data) => {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            res.json(data);
+        }
+    })
+});
+
+app.get("/api/workouts/range", (req, res) => {
+    db.find({}, (err, data) => {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            res.json(data);
+        }
+    })
+});
+
+//HTML routes
+app.get("/exercise", (req, res) => {
+    res.sendFile(path.join(__dirname + "/public/exercise.html"))
+});
+
+app.get("/stats", (req, res) => {
+    res.sendFile(path.join(__dirname + "/public/stats.html"))
+});
+
+app.listen(PORT, () => {
+    console.log("App running on port:" + PORT);
+});
